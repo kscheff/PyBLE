@@ -38,7 +38,34 @@ def hci_le_connect(sock, peer_bdaddr, interval=0x0004, window=0x004,
                            min_ce_length, max_ce_length)
     bluez.hci_send_cmd(sock, constants.OGF_LE_CTL, constants.OCF_LE_CREATE_CONN,
                        cmd_pkt)
+                       
+def hci_le_enable_advertise(sock):
+    _hci_le_toggle_advertise(sock, 0x01)
 
+def hci_le_disable_advertise(sock):
+    _hci_le_toggle_advertise(sock, 0x00)
+
+def _hci_le_toggle_advertise(sock, enable):
+    cmd_pkt = struct.pack("<B", enable)
+    bluez.hci_send_cmd(sock, constants.OGF_LE_CTL,
+                       constants.OCF_LE_SET_ADVERTISE_ENABLE, cmd_pkt)
+                       
+def set_advertising_data(sock, data):
+	data = data[:31]
+	l = len(data)
+	data = [l] + data + [0] * (31 - l)
+	cmd_pkt = struct.pack("<" + "B" * 32, *data)
+	bluez.hci_send_cmd(sock, constants.OGF_LE_CTL,
+                       constants.OCF_LE_SET_ADVERTISING_DATA, cmd_pkt)
+
+def set_scan_response_data(sock, data):
+	data = data[:31]
+	l = len(data)
+	data = [l] + data + [0] * (31 - l)
+	cmd_pkt = struct.pack("<" + "B" * 32, *data)
+	bluez.hci_send_cmd(sock, constants.OGF_LE_CTL,
+                       constants.OCF_LE_SET_SCAN_RESPONSE_DATA, cmd_pkt)
+                       
 def hci_le_enable_scan(sock):
     _hci_le_toggle_scan(sock, 0x01)
 
